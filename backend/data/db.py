@@ -1,6 +1,10 @@
 import json
 import os
+import string
 from typing import Dict, List
+
+# Translation table for replacing punctuation with spaces
+_PUNCT_TO_SPACE = str.maketrans(string.punctuation, ' ' * len(string.punctuation))
 
 
 class SpaceDB:
@@ -36,3 +40,31 @@ class SpaceDB:
     def get_all_sources(self) -> List[Dict]:
         """Get all space sources."""
         return self._sources
+
+    def search_sources(self, query: str) -> List[Dict]:
+        """Search sources using simple keyword overlap."""
+        if not query or not query.strip():
+            return []
+
+        # Normalize query to set of words
+        query_words = set(query.casefold().translate(_PUNCT_TO_SPACE).split())
+        if not query_words:
+            return []
+
+        results = []
+        for src in self._sources:
+            # Get all words from title and description
+            title = (src.get("name") or "").casefold().translate(_PUNCT_TO_SPACE)
+            desc = (src.get("description") or "").casefold().translate(_PUNCT_TO_SPACE)
+            doc_words = set(title.split()) | set(desc.split())
+
+            # Count matches
+            matched = query_words & doc_words
+            if matched:
+                confidence = round(len(matched) / len(query_words) * 100, 2)
+                title_matches = len(query_words & set(title.split()))
+                results.append(({**src, "confidence": confidence}, title_matches))
+
+        # Sort by confidence, then title matches
+        results.sort(key=lambda x: (x[0]["confidence"], x[1]), reverse=True)
+        return [r for r, _ in results]
