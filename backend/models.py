@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -14,13 +14,12 @@ class Source(BaseModel):
 
 
 class SearchRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=500)
+    query: str = Field(default="", max_length=500)
 
     @field_validator('query')
     @classmethod
-    def query_must_not_be_empty(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError('Query cannot be empty or whitespace')
+    def normalize_query(cls, v: str) -> str:
+        # Allow empty queries (for browse mode)
         return v.strip()
 
 class SearchResult(Source):
@@ -32,3 +31,20 @@ class SearchResponse(BaseModel):
     query: str
     total_results: int
     results: List[SearchResult]
+
+
+class SearchHistoryEntry(BaseModel):
+    """Single search history record."""
+    id: str
+    query: str
+    timestamp: str  # ISO 8601 format
+    results_count: int
+    top_result: Optional[dict]  # {name, confidence, image_url} or None
+
+
+class SearchHistoryResponse(BaseModel):
+    """Paginated search history response."""
+    total: int
+    page: int
+    page_size: int
+    entries: List[SearchHistoryEntry]

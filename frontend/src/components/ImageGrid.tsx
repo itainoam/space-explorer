@@ -15,9 +15,10 @@ interface ImageGridProps {
   images: Source[];
   searchQuery: string;
   isSearching?: boolean;
+  error?: string | null;
 }
 
-const ImageGrid: React.FC<ImageGridProps> = ({ images, searchQuery, isSearching = false }) => {
+const ImageGrid: React.FC<ImageGridProps> = ({ images, searchQuery, isSearching = false, error = null }) => {
   // Determine confidence color based on percentage
   // const getConfidenceColor = (confidence: number): string => {
   //   if (confidence >= 75) return 'bg-green-500';
@@ -41,8 +42,18 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, searchQuery, isSearching 
         </div>
       )}
 
+      {/* Error State */}
+      {!isSearching && error && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-gray-600 max-w-md">
+            {error}
+          </p>
+        </div>
+      )}
+
       {/* Empty State */}
-      {!isSearching && searchQuery.trim() && images.length === 0 && (
+      {!isSearching && !error && searchQuery.trim() && images.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="text-6xl mb-4">🔍</div>
           <h3 className="text-xl font-semibold text-gray-700 mb-2">No matches found</h3>
@@ -55,7 +66,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, searchQuery, isSearching 
       {/* Image Grid */}
       <div
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-200"
-        style={isSearching ? { opacity: 0.5 } : {}}
       >
         {images.map((image) => (
           <div key={image.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -68,22 +78,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images, searchQuery, isSearching 
             )}
             <div className="p-4">
               <h2 className="text-xl font-semibold mb-2">{image.name}</h2>
-
-              {/* Confidence Progress Bar - Commented out */}
-              {/* {image.confidence !== undefined && (
-                <div className="mb-3">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm text-gray-600">Relevance</span>
-                    <span className="text-sm font-semibold text-gray-700">{image.confidence.toFixed(0)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full transition-all ${getConfidenceColor(image.confidence)}`}
-                      style={{ width: `${image.confidence}%` }}
-                    />
-                  </div>
-                </div>
-              )} */}
 
               <p className="text-gray-600 mb-2 line-clamp-3">{image.description}</p>
               <p className="text-sm text-gray-500 mb-4">
