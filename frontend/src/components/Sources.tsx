@@ -188,38 +188,49 @@ const Sources: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header with History Button */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">NASA Space Images</h1>
-        <button
-          onClick={() => setIsHistoryOpen(prev => !prev)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          History
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            NASA Space Explorer
+          </h1>
+        </div>
 
-      <SearchBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onSearch={handleSearch}
-        onClear={handleClear}
-        isSearching={isSearching}
-      />
+        {/* Search Bar with History Button */}
+        <div className="mb-8">
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <SearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSearch={handleSearch}
+                onClear={handleClear}
+                isSearching={isSearching}
+              />
+            </div>
+            <button
+              onClick={() => setIsHistoryOpen(prev => !prev)}
+              className="flex items-center gap-2 px-5 py-4 bg-white border-2 border-gray-200 rounded-xl shadow-sm font-medium text-gray-700"
+              title="View search history"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>History</span>
+            </button>
+          </div>
+        </div>
 
       <ImageGrid
         images={displayedImages}
@@ -229,12 +240,14 @@ const Sources: React.FC = () => {
       />
 
       {/* History Sidebar */}
+      {/* History Sidebar */}
       <HistorySidebar
         ref={historySidebarRef}
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         onSearchSelect={handleHistorySearch}
       />
+      </div>
     </div>
   );
 };
