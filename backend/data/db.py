@@ -176,10 +176,6 @@ class SpaceDB:
         """
         Get paginated search history in reverse chronological order (newest first).
 
-        Args:
-            page: Page number (1-indexed)
-            page_size: Entries per page
-
         Returns:
             Dictionary with total, page, page_size, and entries
         """
@@ -201,9 +197,6 @@ class SpaceDB:
     def delete_history_entry(self, entry_id: str) -> bool:
         """
         Delete a search history entry by ID.
-
-        Args:
-            entry_id: The unique ID of the history entry to delete
 
         Returns:
             True if entry was found and deleted, False if not found

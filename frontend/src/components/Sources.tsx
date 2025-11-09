@@ -56,16 +56,8 @@ const Sources: React.FC = () => {
     setError(null);
   };
 
-  // Handle explicit search (button click or Enter key)
-  const handleSearch = async () => {
-    // If query is empty, just show all images without hitting API
-    if (!searchQuery.trim()) {
-      setDisplayedImages(allImages);
-      setLastSearchedQuery('');
-      setError(null);
-      return;
-    }
-
+  // Shared search logic - performs API call with given query
+  const performSearch = async (query: string) => {
     // Cancel previous search if still running
     if (searchAbortController.current) {
       searchAbortController.current.abort();
@@ -80,12 +72,12 @@ const Sources: React.FC = () => {
     try {
       const response = await axios.post(
         '/api/search',
-        { query: searchQuery },
+        { query },
         { signal: searchAbortController.current.signal }
       );
 
       setDisplayedImages(response.data.results);
-      setLastSearchedQuery(searchQuery);
+      setLastSearchedQuery(query);
       setIsSearching(false);
       setError(null);
 
@@ -122,63 +114,23 @@ const Sources: React.FC = () => {
     }
   };
 
+  // Handle explicit search (button click or Enter key)
+  const handleSearch = async () => {
+    // If query is empty, just show all images without hitting API
+    if (!searchQuery.trim()) {
+      setDisplayedImages(allImages);
+      setLastSearchedQuery('');
+      setError(null);
+      return;
+    }
+
+    await performSearch(searchQuery);
+  };
+
   // Handle search from history sidebar
   const handleHistorySearch = (query: string) => {
     setSearchQuery(query);
-    // Trigger search with the selected query
-    // We need to call handleSearch after state updates, so we'll use a different approach
-    // Set the query and let the effect handle it
-    setTimeout(() => {
-      // Create a synthetic search
-      if (searchAbortController.current) {
-        searchAbortController.current.abort();
-      }
-
-      searchAbortController.current = new AbortController();
-      setIsSearching(true);
-      setError(null);
-
-      axios.post(
-        '/api/search',
-        { query },
-        { signal: searchAbortController.current.signal }
-      ).then(response => {
-        setDisplayedImages(response.data.results);
-        setLastSearchedQuery(query);
-        setIsSearching(false);
-        setError(null);
-
-        // Refresh history sidebar after search
-        if (isHistoryOpen && historySidebarRef.current) {
-          historySidebarRef.current.refreshHistory();
-        }
-      }).catch(err => {
-        if (axios.isCancel(err)) {
-          return;
-        }
-
-        // Extract meaningful error message
-        let errorMessage = 'Something went wrong. Please try again.';
-        if (axios.isAxiosError(err)) {
-          if (err.response) {
-            // Server responded with error
-            const status = err.response.status;
-            if (err.response.data?.detail) {
-              errorMessage = `${err.response.data.detail} (Error ${status})`;
-            } else {
-              errorMessage = `Unable to complete your request. (Error ${status})`;
-            }
-          } else if (err.request) {
-            // Request made but no response
-            errorMessage = 'Unable to reach the server. Please check your connection.';
-          }
-        }
-
-        setError(errorMessage);
-        setDisplayedImages([]); // Clear stale results
-        setIsSearching(false);
-      });
-    }, 0);
+    performSearch(query);
   };
 
   if (loading) {

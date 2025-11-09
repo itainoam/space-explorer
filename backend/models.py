@@ -37,7 +37,7 @@ class SearchHistoryEntry(BaseModel):
     """Single search history record."""
     id: str
     query: str
-    timestamp: str  # ISO 8601 format
+    timestamp: str  
     results_count: int
     top_result: Optional[dict]  # {name, confidence, image_url} or None
 
